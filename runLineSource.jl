@@ -56,16 +56,21 @@ end
 phi_dlra = Vec2Mat(s.NCellsX,s.NCellsY,Mat2Vec(psi_DLR)*solver1.M')[:,:,1]+Vec2Mat(s.NCellsX,s.NCellsY,X_dlr*diagm(S_dlr)*(solver1.M*W_dlr)[1,:])[:,:,1]
 phi_full = Vec2Mat(s.NCellsX,s.NCellsY,Mat2Vec(psi_full)*solver.M')[:,:,1]+Vec2Mat(s.NCellsX,s.NCellsY,u[:,1])[:,:,1];
 
+lsRefFull = readdlm("refPhiFull.txt", ',', Float64);
+nx = size(lsRefFull,1)
+xMid = collect(range(-1.5,stop = 1.5,length = nx));
+yMid = collect(range(-1.5,stop = 1.5,length = nx));
 
 fig, (ax2, ax1, ax3, ax4) = plt.subplots(2, 2,figsize=(15,15),dpi=100)
 CS = ax1.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_dlra[2:(end-1),2:(end-1)],cmap="plasma")
 CS = ax2.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_Llow[2:(end-1),2:(end-1)],cmap="plasma")
-CS = ax3.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_Lhigh[2:(end-1),2:(end-1)],cmap="plasma")
-CS = ax4.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_full[2:(end-1),2:(end-1)],cmap="plasma")
-ax1.set_title("fixed rank r = $(s.r), L = 0", fontsize=20)
+#CS = ax3.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_Lhigh[2:(end-1),2:(end-1)],cmap="plasma")
+CS = ax3.pcolormesh(s.xMid[2:(end-1)],s.yMid[2:(end-1)],phi_full[2:(end-1),2:(end-1)],cmap="plasma")
+CS = ax4.pcolormesh(xMid[2:(end-1)],yMid[2:(end-1)],lsRefFull[2:(end-1),2:(end-1)],cmap="plasma")
+ax1.set_title(L"P$_N$", fontsize=20)
 ax2.set_title(L"L = 1, $\vartheta$=0.3", fontsize=20)
 ax3.set_title(L"L = 4, $\vartheta$=0.3", fontsize=20)
-ax4.set_title(L"P$_N$", fontsize=20)
+ax4.set_title("reference", fontsize=20)
 ax1.tick_params("both",labelsize=15) 
 ax2.tick_params("both",labelsize=15) 
 ax3.tick_params("both",labelsize=15) 
