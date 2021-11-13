@@ -201,16 +201,6 @@ function IC(obj::Settings,x,y)
             out[j,i] = 1/(s1*sqrt(2*pi))^2*exp.(-(x0[j].^2+y0[i].^2) ./ 2.0./s2)
         end
     end
-
-
-    s1 = 0.01
-    s2 = s1^2
-    floor = 1e-4
-    for j = 1:length(x);
-        for i = 1:length(y);
-            out[j,i] = 1/(s1*sqrt(2*pi))^2*exp.(-(x0[j].^2+y0[i].^2) ./ 2.0./s2)
-        end
-    end
     
     return out;
 end
