@@ -102,7 +102,7 @@ for l = 1:L1
 end
 ax.set_xlim([0.0,s.eMax])
 #ax.set_ylim([0.0,440])
-ax.set_xlabel("energy [MeV]", fontsize=20);
+ax.set_xlabel("time [sec]", fontsize=20);
 ax.set_ylabel("rank", fontsize=20);
 ax.tick_params("both",labelsize=20) 
 ax.legend(loc="upper right", fontsize=20)
@@ -118,7 +118,7 @@ for l = 1:L
 end
 ax.set_xlim([0.0,s.eMax])
 #ax.set_ylim([0.0,440])
-ax.set_xlabel("energy [MeV]", fontsize=20);
+ax.set_xlabel("time [sec]", fontsize=20);
 ax.set_ylabel("rank", fontsize=20);
 ax.tick_params("both",labelsize=20) 
 ax.legend(loc="upper right", fontsize=20)
