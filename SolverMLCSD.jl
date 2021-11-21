@@ -470,7 +470,7 @@ function UnconventionalIntegratorAdaptive!(obj::SolverMLCSD,Dvec::Array{Float64,
     SigmaT = D+Diagonal(Dvec)
     dE = obj.settings.dE;
 
-    X,S,W = UpdateUIStreamingAdaptive(obj,X,S,W);
+    X,S,W = UpdateUIStreamingAdaptiveEfficient(obj,X,S,W);
 
     r = size(S,1)
 
@@ -567,7 +567,7 @@ function UnconventionalIntegratorAdaptive!(obj::SolverMLCSD,Dvec::Array{Float64,
     N = obj.pn.nTotalEntries
     Id = Diagonal(ones(N));
 
-    X,S,W = UpdateUIStreamingAdaptive(obj,X,S,W);
+    X,S,W = UpdateUIStreamingAdaptiveEfficient(obj,X,S,W);
     r = size(S,1);
 
     ############## In Scattering ##############
@@ -673,7 +673,7 @@ function UnconventionalIntegratorCollidedAdaptive!(obj::SolverMLCSD,Dvec::Array{
     Id = Diagonal(ones(N));
     nEnergies = length(obj.csd.eTrafo);
 
-    X,S,W = UpdateUIStreamingAdaptive(obj,X,S,W);
+    X,S,W = UpdateUIStreamingAdaptiveEfficient(obj,X,S,W);
     r = size(S,1);
 
     ############## In Scattering ##############
@@ -783,7 +783,7 @@ function UnconventionalIntegratorCollidedAdaptive!(obj::SolverMLCSD,Dvec::Array{
     return r;
 end
 
-function UpdateUIStreamingAdaptive(obj::SolverMLCSD,X::Array{Float64,2},S::Array{Float64,2},W::Array{Float64,2},sigmaT::Float64=0.0)
+function UpdateUIStreamingAdaptiveEfficient(obj::SolverMLCSD,X::Array{Float64,2},S::Array{Float64,2},W::Array{Float64,2},sigmaT::Float64=0.0)
     dE = obj.settings.dE
     r=size(X,2);
     rmin = 2;
@@ -822,22 +822,21 @@ function UpdateUIStreamingAdaptive(obj::SolverMLCSD,X::Array{Float64,2},S::Array
     WNew = WNew[:,1:2*r];
 
     NUp = WNew' * W;
+    ################## S-step ##################
+    XL2xX = XNew'*obj.L2x*X
+    XL2yX = XNew'*obj.L2y*X
+    XL1xX = XNew'*obj.L1x*X
+    XL1yX = XNew'*obj.L1y*X
+
+    WAzW = W'*obj.pn.Az'*WNew
+    WAbsAzW = W'*obj.AbsAz'*WNew
+    WAbsAxW = W'*obj.AbsAx'*WNew
+    WAxW = W'*obj.pn.Ax'*WNew
+
+    S = (MUp*S*(NUp') .- dE.*(XL2xX*S*WAxW + XL2yX*S*WAzW + XL1xX*S*WAbsAxW + XL1yX*S*WAbsAzW))/(1+dE*sigmaT);
+
     W = WNew;
     X = XNew;
-    ################## S-step ##################
-    S = MUp*S*(NUp')
-
-    XL2xX = X'*obj.L2x*X
-    XL2yX = X'*obj.L2y*X
-    XL1xX = X'*obj.L1x*X
-    XL1yX = X'*obj.L1y*X
-
-    WAzW = W'*obj.pn.Az'*W
-    WAbsAzW = W'*obj.AbsAz'*W
-    WAbsAxW = W'*obj.AbsAx'*W
-    WAxW = W'*obj.pn.Ax'*W
-
-    S .= (S .- dE.*(XL2xX*S*WAxW + XL2yX*S*WAzW + XL1xX*S*WAbsAxW + XL1yX*S*WAbsAzW))/(1+dE*sigmaT);
 
     ################## truncate ##################
 
