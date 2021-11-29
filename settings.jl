@@ -93,9 +93,9 @@ mutable struct Settings
             sigmaA = 0.0;  
             cfl = 0.99/sqrt(2);    
             eMax = 1.0
-            #adaptIndex = 0;
-            #epsAdapt = 0.3;#0.5;
-            epsAdapt = 1e-2;
+            adaptIndex = 0;
+            epsAdapt = 0.3;#0.5;
+            #epsAdapt = 1e-1;
         elseif problem =="2DHighD"
             a = 0.0
             b = 1.0;
@@ -108,6 +108,29 @@ mutable struct Settings
             adaptIndex = 0;
             epsAdapt = 0.3;#0.5;
             density[Int(floor(NCellsX*0.56/(b-a))):end,:] .= 5.0;
+        elseif problem =="lungOrig"
+            #img = Float64.(Gray.(load("phantom.png")))
+            pathlib = pyimport("pathlib")
+            path = pathlib.Path(pwd())
+            println(path)
+            img = Float64.(Gray.(load("LungOrig.png")))
+            nx = size(img,1)
+            ny = size(img,2)
+            densityMin = 0.2
+            for i = 1:NCellsX
+                for j = 1:NCellsY
+                    density[i,j] = max(1.85*img[Int(floor(i/NCellsX*nx)),Int(floor(j/NCellsY*ny))],densityMin) # 1.85 bone, 1.04 muscle, 0.3 lung
+                end
+            end
+            b = 14.5; # right boundary
+            d = 18.5; # upper boundary
+            eMax = 21.0
+            cfl = 1.5
+            x0 = 0.5*b;
+            y0 = 1.0*d;
+            Omega1 = -1.0;
+            Omega3 = -1.0;
+            epsAdapt = 1e-3;
         elseif problem =="lung"
             #img = Float64.(Gray.(load("phantom.png")))
             pathlib = pyimport("pathlib")
@@ -116,6 +139,7 @@ mutable struct Settings
             img = Float64.(Gray.(load("Lung.png")))
             nx = size(img,1)
             ny = size(img,2)
+            println(size(img))
             densityMin = 0.05
             for i = 1:NCellsX
                 for j = 1:NCellsY
@@ -169,7 +193,7 @@ mutable struct Settings
 
         # time settings
         #cfl = 1.5#1.4 # CFL condition
-        dE = cfl*dx*minimum(density);
+        dE = cfl*min(dx,dy)*minimum(density);
         
         # number PN moments
         nPN = 21#13, 21; # use odd number
