@@ -45,8 +45,10 @@ dose_Lhigh = Vec2Mat(s3.NCellsX,s3.NCellsY,dose_Lhigh);
 density = Float64.(Gray.(load("Lung.png")))
 nxD = size(density,1)
 nyD = size(density,2)
-y = collect(range(s.a,stop = s.b,length = nxD));
-x = collect(range(s.c,stop = s.d,length = nyD));
+y = collect(range(s.a,stop = s.b,length = nxD-2));
+x = collect(range(s.c,stop = s.d,length = nyD-2));
+XX = (x'.*ones(size(y)))'
+YY = (y'.*ones(size(x)))
 
 # all contours magma
 doseMax1 = maximum(dose_dlra[2:(end-1),2:(end-1)])
@@ -54,15 +56,18 @@ doseMax2 = maximum(dose_Llow[2:(end-1),2:(end-1)])
 doseMax3 = maximum(dose_Lhigh[2:(end-1),2:(end-1)])
 doseMax4 = maximum(dose_full[2:(end-1),2:(end-1)])
 levels = 40;
+X = (s.xMid[2:end-1]'.*ones(size(s.yMid[2:end-1])))
+Y = (s.yMid[2:end-1]'.*ones(size(s.xMid[2:end-1])))'
+
 fig, (ax2, ax1, ax3, ax4) = plt.subplots(2, 2,figsize=(15,15),dpi=100)
-ax1.pcolormesh(x[2:(end-1)],y[2:(end-1)],density[2:(end-1),2:(end-1)],cmap="gray")
-CS = ax1.contour(s.xMid[2:(end-1)],s.yMid[2:(end-1)],dose_dlra[2:(end-1),2:(end-1)]./doseMax1,levels,cmap="plasma",vmin=0,vmax=1)
-ax2.pcolormesh(x[2:(end-1)],y[2:(end-1)],density[2:(end-1),2:(end-1)],cmap="gray")
-ax2.contour(s.xMid[2:(end-1)],s.yMid[2:(end-1)],dose_Llow[2:(end-1),2:(end-1)]./doseMax2,levels,cmap="plasma",vmin=0,vmax=1)
-ax3.pcolormesh(x[2:(end-1)],y[2:(end-1)],density[2:(end-1),2:(end-1)],cmap="gray")
-CS = ax3.contour(s.xMid[2:(end-1)],s.yMid[2:(end-1)],dose_Lhigh[2:(end-1),2:(end-1)]./doseMax3,levels,cmap="plasma",vmin=0,vmax=1)
-ax4.pcolormesh(x[2:(end-1)],y[2:(end-1)],density[2:(end-1),2:(end-1)],cmap="gray")
-CS = ax4.contour(s.xMid[2:(end-1)],s.yMid[2:(end-1)],dose_full[2:(end-1),2:(end-1)]./doseMax4,levels,cmap="plasma",vmin=0,vmax=1)
+ax1.pcolormesh(XX,YY,density[2:(end-1),2:(end-1)],cmap="gray")
+CS = ax1.contour(Y,X,dose_dlra[2:(end-1),2:(end-1)]'./doseMax1,levels,cmap="plasma",vmin=0,vmax=1)
+ax2.pcolormesh(XX,YY,density[2:(end-1),2:(end-1)],cmap="gray")
+ax2.contour(Y,X,dose_Llow[2:(end-1),2:(end-1)]'./doseMax2,levels,cmap="plasma",vmin=0,vmax=1)
+ax3.pcolormesh(XX,YY,density[2:(end-1),2:(end-1)],cmap="gray")
+CS = ax3.contour(Y,X,dose_Lhigh[2:(end-1),2:(end-1)]'./doseMax3,levels,cmap="plasma",vmin=0,vmax=1)
+ax4.pcolormesh(XX,YY,density[2:(end-1),2:(end-1)],cmap="gray")
+CS = ax4.contour(Y,X,dose_full[2:(end-1),2:(end-1)]'./doseMax4,levels,cmap="plasma",vmin=0,vmax=1)
 ax1.set_title("fixed rank r = $(s.r), L = 0", fontsize=20)
 ax2.set_title(L"L = 1, $\bar{\vartheta}$=0.01", fontsize=20)
 ax3.set_title(L"L = 1, $\bar{\vartheta}$=0.001", fontsize=20)
